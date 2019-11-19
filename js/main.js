@@ -16,26 +16,31 @@ function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
+// Функция, которая возвращает случайный элемент массива
+function randomArr(arr) {
+ var randomElement = arr[getRandom(0, arr.length)];
+ return randomElement;
+}
 
 // Функция формирования объявления
 function createObj() {
   var arr = [];
 
-  for (var i = 1; i < QUANTITY; i++) {
+  for (var i = 0; i < QUANTITY; i++) {
     var announcement = {
       "author": {
-        "avatar": 'img/avatars/user0' + i + '.png'
+        "avatar": 'img/avatars/user0' + (i + 1) + '.png'
       },
 
       "offer": {
         "title": 'Mustard Hotel Asakusa',
         "address": '600, 350',
         "price": getRandom(1000, 20000),
-        "type": TYPE_APARTMENTS[getRandom(0, TYPE_APARTMENTS.length)],
+        "type": randomArr(TYPE_APARTMENTS),
         "rooms": getRandom(1,5),
         "guests": getRandom(1,8),
-        "checkin": TIME_CHECKIN[getRandom(0, TIME_CHECKIN.length)],
-        "checkout": TIME_CHECKOUT[getRandom(0, TIME_CHECKOUT.length)],
+        "checkin": randomArr(TIME_CHECKIN),
+        "checkout": randomArr(TIME_CHECKOUT),
         "features": ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'],
         "description": 'Отель Mustard Asakusa 2 удобно расположен в районе Таито в Токио, в 200 м от торгового центра Ekimise Asakusa, в 300 м от ворот Гозомон и в 300 м от ворот Нитенмон. Отель находится недалеко от публичного зала Asakusa, концертного зала Sumida Riverside Hall и торгового центра Asakusa ROX. К услугам гостей круглосуточная стойка регистрации и бесплатный Wi-Fi на всей территории.',
         "photos": ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg']
@@ -72,7 +77,7 @@ var arrayAnnouncement = createObj();
 var fragment = document.createDocumentFragment();
 
 // Прохожу циклом по массиву и добавляю метку в фрагмент
-for (var i = 1; i < arrayAnnouncement.length; i++) {
+for (var i = 0; i < arrayAnnouncement.length; i++) {
   fragment.appendChild(tagCreation(arrayAnnouncement[i]));
 }
 
