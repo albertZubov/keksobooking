@@ -125,7 +125,7 @@ var cardCreation = function (announcement) {
     photoElement.appendChild(createImg);
   }
 
-  cardElement.querySelector('.popup__avatar').setAttribute('src', announcement.author.avatar);
+  cardElement.querySelector('.popup__avatar').src = announcement.author.avatar;
 
   return cardElement;
 }
@@ -156,22 +156,15 @@ var formSelect = document.querySelectorAll('select');
 var mainPin = document.querySelector('.map__pin--main');
 var form = document.querySelector('.ad-form');
 
-// Добавляем атрибуты к полям формы
-var setFieldDisabled = function (field) {
+// Добавляем и удаляем атрибуты к полям формы
+var setRemoveFieldDisabled = function (field, status) {
   for (var i = 0; i < field.length; i++) {
-    field[i].setAttribute('disabled', 'disabled');
-  }
-};
-
-setFieldDisabled(formFieldset);
-setFieldDisabled(formSelect);
-
-// Удаляем атрибуты у полей формы
-var removeFieldDisabled = function (field) {
-  for (var i = 0; i < field.length; i++) {
-    field[i].removeAttribute('disabled', 'disabled');
+    field[i].disabled = status;
   }
 }
+
+setRemoveFieldDisabled(formFieldset, true);
+setRemoveFieldDisabled(formSelect, true);
 
 // Добавялем обработчик события на метку по наведению и клику
 mainPin.addEventListener('mousedown', function() {
@@ -180,8 +173,8 @@ mainPin.addEventListener('mousedown', function() {
 
 // Создаем функцию перевода страницы из неактивного состояни в активное
 var translationActiveState = function () {
-  removeFieldDisabled(formFieldset);
-  removeFieldDisabled(formSelect);
+setRemoveFieldDisabled(formFieldset, false);
+setRemoveFieldDisabled(formSelect, false);
   document.querySelector('.map__pins').appendChild(fragment);
   document.querySelector('.map').insertBefore(filterCardCreation, filterMap)
   mapEmergence.classList.remove('map--faded');
@@ -200,17 +193,18 @@ var onMapActiveEnterPress = function (evt) {
 mainPin.addEventListener('keydown', onMapActiveEnterPress);
 
 // Создаем функцию добавления координат метки в поле формы
+var address = document.querySelector('#address');
 var getAdressInput = function (x, y) {
-  var address = document.querySelector('#address');
   var pinX = parseInt(mainPin.style.left, 10) + x / 2;
+  var pinY = parseInt(mainPin.style.top, 10);
 
   if (y === PIN_HEIGHT) {
-    var pinY = parseInt(mainPin.style.top, 10) + y / 2;
+    pinY += y / 2;
   } else {
-    pinY = parseInt(mainPin.style.top, 10) + PIN_HEIGHT_Y;
+    pinY += PIN_HEIGHT_Y;
   }
 
-  address.value = (pinX + ' , ' + pinY);
+  address.value = pinX + ', ' + pinY;
 };
 
 getAdressInput(PIN_WIDTH, PIN_HEIGHT);
@@ -220,7 +214,7 @@ var roomNumber = document.querySelector('#room_number');
 var guestsNumber = document.querySelector('#capacity');
 
 var getActiveRooms = function () {
-  var numbers = ROOMS_GUESTS_CONNECT[roomNumber.value];
+  var numbers = ROOMS_GUESTS_CONNECT[(roomNumber.value)];
 
   for (var i = 0; i < guestsNumber.length; i++) {
     var val = parseInt(guestsNumber[i].value, 10);
