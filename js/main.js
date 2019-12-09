@@ -1,6 +1,12 @@
 'use strict';
 
 var QUANTITY = 8;
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
+var PIN_WIDTH = 62;
+var PIN_HEIGHT = 62;
+var PIN_WIDHT_X = 62;
+var PIN_HEIGHT_Y = PIN_HEIGHT + 22;
 var TYPE_APARTMENTS = ['palace', 'flat', 'house', 'bungalo'];
 var TIME_CHECKIN = ['12:00', '13:00', '14:00'];
 var TIME_CHECKOUT = ['12:00', '13:00', '14:00'];
@@ -10,10 +16,16 @@ var apartments = {
   house: 'Дом',
   palace: 'Дворец'
 }
+var ROOMS_GUESTS_CONNECT = {
+  1: [1],
+  2: [1, 2],
+  3: [1, 2, 3],
+  100: [0]
+};
 
 // Нахождение и удаление класса появления карты
 var mapEmergence = document.querySelector('.map');
-mapEmergence.classList.remove('map--faded');
+// mapEmergence.classList.remove('map--faded');
 
 // Функция генерации случайного числа в заданном интервале
 function getRandom(min, max) {
@@ -113,7 +125,7 @@ var cardCreation = function (announcement) {
     photoElement.appendChild(createImg);
   }
 
-  cardElement.querySelector('.popup__avatar').setAttribute('src', announcement.author.avatar);
+  cardElement.querySelector('.popup__avatar').src = announcement.author.avatar;
 
   return cardElement;
 }
@@ -131,8 +143,94 @@ for (var i = 0; i < arrayAnnouncement.length; i++) {
 }
 
 // Добавляю метку в DOM из фрагмента
-document.querySelector('.map__pins').appendChild(fragment);
+// document.querySelector('.map__pins').appendChild(fragment);
 
 // Добавление элемента объявления в DOM
 var filterMap = document.querySelector('.map__filters-container');
-document.querySelector('.map').insertBefore(filterCardCreation, filterMap);
+// document.querySelector('.map').insertBefore(filterCardCreation, filterMap);
+
+
+// Объявляем перенные поиска элементов на странице
+var formFieldset = document.querySelectorAll('fieldset');
+var formSelect = document.querySelectorAll('select');
+var mainPin = document.querySelector('.map__pin--main');
+var form = document.querySelector('.ad-form');
+
+// Добавляем и удаляем атрибуты к полям формы
+var setRemoveFieldDisabled = function (field, status) {
+  for (var i = 0; i < field.length; i++) {
+    field[i].disabled = status;
+  }
+}
+
+setRemoveFieldDisabled(formFieldset, true);
+setRemoveFieldDisabled(formSelect, true);
+
+// Добавялем обработчик события на метку по наведению и клику
+mainPin.addEventListener('mousedown', function() {
+  translationActiveState();
+});
+
+// Создаем функцию перевода страницы из неактивного состояни в активное
+var translationActiveState = function () {
+setRemoveFieldDisabled(formFieldset, false);
+setRemoveFieldDisabled(formSelect, false);
+  document.querySelector('.map__pins').appendChild(fragment);
+  document.querySelector('.map').insertBefore(filterCardCreation, filterMap)
+  mapEmergence.classList.remove('map--faded');
+  form.classList.remove('ad-form--disabled');
+  getAdressInput(PIN_WIDHT_X, PIN_HEIGHT_Y);
+};
+
+// Создаем функцию, которая вызывается при нажатии на enter
+var onMapActiveEnterPress = function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    translationActiveState();
+  }
+};
+
+// Добавялем обработчик события на метку по нажатию на enter
+mainPin.addEventListener('keydown', onMapActiveEnterPress);
+
+// Создаем функцию добавления координат метки в поле формы
+var address = document.querySelector('#address');
+var getAdressInput = function (x, y) {
+  var pinX = parseInt(mainPin.style.left, 10) + x / 2;
+  var pinY = parseInt(mainPin.style.top, 10);
+
+  if (y === PIN_HEIGHT) {
+    pinY += y / 2;
+  } else {
+    pinY += PIN_HEIGHT_Y;
+  }
+
+  address.value = pinX + ', ' + pinY;
+};
+
+getAdressInput(PIN_WIDTH, PIN_HEIGHT);
+
+// Функция соответствия двух полей формы
+var roomNumber = document.querySelector('#room_number');
+var guestsNumber = document.querySelector('#capacity');
+
+var getActiveRooms = function () {
+  var numbers = ROOMS_GUESTS_CONNECT[(roomNumber.value)];
+
+  for (var i = 0; i < guestsNumber.length; i++) {
+    var val = parseInt(guestsNumber[i].value, 10);
+    guestsNumber[i].setAttribute('disabled', 'disabled');
+    for (var j = 0; j < numbers.length; j++) {
+      if (val === numbers[j]) {
+        guestsNumber[i].removeAttribute('disabled', 'disabled');
+      }
+    }
+  }
+};
+
+// Создаем событие в форме по вызову функции соответствия
+roomNumber.addEventListener('change', function () {
+  getActiveRooms();
+});
+
+
+
