@@ -23,6 +23,13 @@ var ROOMS_GUESTS_CONNECT = {
   100: [0]
 };
 
+var HOUSINGTYPE_MINPRICE_CONNECT = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
 // Нахождение и удаление класса появления карты
 var mapEmergence = document.querySelector('.map');
 // mapEmergence.classList.remove('map--faded');
@@ -38,7 +45,6 @@ function getRandom(min, max) {
 function randomArr(arr) {
   return arr[getRandom(0, arr.length)];
 }
-
 
 // Функция формирования объявления
 function createObj(id) {
@@ -78,6 +84,14 @@ function renderAnnouncement () {
   return arr;
 }
 
+// Функция проверки Dom-элемента в разметке и удаление элемента
+var closeCard = function () {
+  var cardCheck = document.querySelector('.map__card');
+  if (cardCheck) {
+    mapEmergence.removeChild(cardCheck);
+  }
+}
+
 // Функция создания метки на основе клонирования, подставление данных в нее из объекта
 var tagCreation = function (announcement) {
   var tagCreationTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -88,6 +102,15 @@ var tagCreation = function (announcement) {
   tagElement.querySelector('img').setAttribute('src', announcement.author.avatar);
   tagElement.querySelector('img').setAttribute('alt', announcement.offer.title);
 
+  // Создаем содержание объявлений на основе клонирования
+  tagElement.addEventListener('click', function () {
+
+    closeCard();
+
+    fragment.appendChild(cardCreation(announcement));
+    document.querySelector('.map').insertBefore(fragment, filterMap)
+  });
+
   return tagElement;
 }
 
@@ -95,7 +118,6 @@ var tagCreation = function (announcement) {
 var cardCreation = function (announcement) {
   var cardCreationTemplate = document.querySelector('#card').content.querySelector('.map__card');
   var cardElement = cardCreationTemplate.cloneNode(true);
-
 
   cardElement.querySelector('.popup__title').textContent = announcement.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = announcement.offer.address;
@@ -126,6 +148,14 @@ var cardCreation = function (announcement) {
   }
 
   cardElement.querySelector('.popup__avatar').src = announcement.author.avatar;
+
+  var closeCardBtn = cardElement.querySelector('.popup__close');
+  closeCardBtn.addEventListener('click', closeCard);
+  document.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      closeCard();
+    }
+  });
 
   return cardElement;
 }
@@ -173,10 +203,10 @@ mainPin.addEventListener('mousedown', function() {
 
 // Создаем функцию перевода страницы из неактивного состояни в активное
 var translationActiveState = function () {
-setRemoveFieldDisabled(formFieldset, false);
-setRemoveFieldDisabled(formSelect, false);
+  setRemoveFieldDisabled(formFieldset, false);
+  setRemoveFieldDisabled(formSelect, false);
   document.querySelector('.map__pins').appendChild(fragment);
-  document.querySelector('.map').insertBefore(filterCardCreation, filterMap)
+  document.querySelector('.map').insertBefore(filterCardCreation, filterMap);
   mapEmergence.classList.remove('map--faded');
   form.classList.remove('ad-form--disabled');
   getAdressInput(PIN_WIDHT_X, PIN_HEIGHT_Y);
@@ -209,12 +239,12 @@ var getAdressInput = function (x, y) {
 
 getAdressInput(PIN_WIDTH, PIN_HEIGHT);
 
-// Функция соответствия двух полей формы
+// Функция соответствия двух полей формы (количество комнат и количество гостей)
 var roomNumber = document.querySelector('#room_number');
 var guestsNumber = document.querySelector('#capacity');
 
 var getActiveRooms = function () {
-  var numbers = ROOMS_GUESTS_CONNECT[(roomNumber.value)];
+  var numbers = ROOMS_GUESTS_CONNECT[roomNumber.value];
 
   for (var i = 0; i < guestsNumber.length; i++) {
     var val = parseInt(guestsNumber[i].value, 10);
@@ -227,10 +257,48 @@ var getActiveRooms = function () {
   }
 };
 
-// Создаем событие в форме по вызову функции соответствия
-roomNumber.addEventListener('change', function () {
-  getActiveRooms();
-});
+// Создаем событие в форме по вызову функции соответствия (количество комнат и количество гостей)
+roomNumber.addEventListener('change', getActiveRooms);
 
 
+// Функция соответствия двух полей формы (тип жилья и минимальная цена)
+var typeHousing = document.querySelector('#type');
+var price = document.querySelector('#price');
 
+var getMinPriceConnectType = function () {
+  for (var prop in HOUSINGTYPE_MINPRICE_CONNECT) {
+    if (typeHousing.value === prop) {
+      price.min = HOUSINGTYPE_MINPRICE_CONNECT[prop];
+      price.placeholder = HOUSINGTYPE_MINPRICE_CONNECT[prop];
+    }
+  }
+};
+
+// Создаем событие по вызову функции (тип жилья и минимальная цена)
+typeHousing.addEventListener('input', getMinPriceConnectType);
+
+
+// Функции проверок соответсвия двух полей (время заезда и время выезда)
+var timeIn = document.querySelector('#timein');
+var timeOut = document.querySelector('#timeout');
+
+
+var getTimeinConnectTimeout = function () {
+    for (var prop in TIME_CHECKIN) {
+      if (timeIn.value === TIME_CHECKIN[prop]) {
+        timeOut.value = TIME_CHECKIN[prop];
+      }
+    }
+};
+
+timeIn.addEventListener('input', getTimeinConnectTimeout);
+
+var getTimeOutConnectTimein = function () {
+    for (var prop in TIME_CHECKOUT) {
+      if (timeOut.value === TIME_CHECKOUT[prop]) {
+        timeIn.value = TIME_CHECKOUT[prop];
+      }
+    }
+};
+
+timeOut.addEventListener('input', getTimeOutConnectTimein);
