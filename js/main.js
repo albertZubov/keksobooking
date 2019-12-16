@@ -8,8 +8,7 @@ var PIN_HEIGHT = 62;
 var PIN_WIDHT_X = 62;
 var PIN_HEIGHT_Y = PIN_HEIGHT + 22;
 var TYPE_APARTMENTS = ['palace', 'flat', 'house', 'bungalo'];
-var TIME_CHECKIN = ['12:00', '13:00', '14:00'];
-var TIME_CHECKOUT = ['12:00', '13:00', '14:00'];
+var TIME_ARRIVAL_DEPARTURE = ['12:00', '13:00', '14:00'];
 var apartments = {
   flat: 'Квартира',
   bungalo: 'Бунгало',
@@ -60,8 +59,8 @@ function createObj(id) {
       "type": randomArr(TYPE_APARTMENTS),
       "rooms": getRandom(1,5),
       "guests": getRandom(1,8),
-      "checkin": randomArr(TIME_CHECKIN),
-      "checkout": randomArr(TIME_CHECKOUT),
+      "checkin": randomArr(TIME_ARRIVAL_DEPARTURE),
+      "checkout": randomArr(TIME_ARRIVAL_DEPARTURE),
       "features": ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'],
       "description": 'Отель Mustard Asakusa 2 удобно расположен в районе Таито в Токио, в 200 м от торгового центра Ekimise Asakusa, в 300 м от ворот Гозомон и в 300 м от ворот Нитенмон. Отель находится недалеко от публичного зала Asakusa, концертного зала Sumida Riverside Hall и торгового центра Asakusa ROX. К услугам гостей круглосуточная стойка регистрации и бесплатный Wi-Fi на всей территории.',
       "photos": ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg']
@@ -266,39 +265,23 @@ var typeHousing = document.querySelector('#type');
 var price = document.querySelector('#price');
 
 var getMinPriceConnectType = function () {
-  for (var prop in HOUSINGTYPE_MINPRICE_CONNECT) {
-    if (typeHousing.value === prop) {
-      price.min = HOUSINGTYPE_MINPRICE_CONNECT[prop];
-      price.placeholder = HOUSINGTYPE_MINPRICE_CONNECT[prop];
-    }
-  }
+  price.min = HOUSINGTYPE_MINPRICE_CONNECT[typeHousing.value];
+  price.placeholder = price.min;
 };
 
 // Создаем событие по вызову функции (тип жилья и минимальная цена)
 typeHousing.addEventListener('input', getMinPriceConnectType);
-
 
 // Функции проверок соответсвия двух полей (время заезда и время выезда)
 var timeIn = document.querySelector('#timein');
 var timeOut = document.querySelector('#timeout');
 
 
-var getTimeinConnectTimeout = function () {
-    for (var prop in TIME_CHECKIN) {
-      if (timeIn.value === TIME_CHECKIN[prop]) {
-        timeOut.value = TIME_CHECKIN[prop];
-      }
-    }
+var getTimeinConnectTimeout = function (evt) {
+  var value = evt.target.value;
+  timeOut.value = value;
+  timeIn.value = value;
 };
 
 timeIn.addEventListener('input', getTimeinConnectTimeout);
-
-var getTimeOutConnectTimein = function () {
-    for (var prop in TIME_CHECKOUT) {
-      if (timeOut.value === TIME_CHECKOUT[prop]) {
-        timeIn.value = TIME_CHECKOUT[prop];
-      }
-    }
-};
-
-timeOut.addEventListener('input', getTimeOutConnectTimein);
+timeOut.addEventListener('input', getTimeinConnectTimeout);
