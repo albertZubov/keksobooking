@@ -8,8 +8,7 @@ var PIN_HEIGHT = 62;
 var PIN_WIDHT_X = 62;
 var PIN_HEIGHT_Y = PIN_HEIGHT + 22;
 var TYPE_APARTMENTS = ['palace', 'flat', 'house', 'bungalo'];
-var TIME_CHECKIN = ['12:00', '13:00', '14:00'];
-var TIME_CHECKOUT = ['12:00', '13:00', '14:00'];
+var TIME_ARRIVAL_DEPARTURE = ['12:00', '13:00', '14:00'];
 var apartments = {
   flat: 'Квартира',
   bungalo: 'Бунгало',
@@ -21,6 +20,13 @@ var ROOMS_GUESTS_CONNECT = {
   2: [1, 2],
   3: [1, 2, 3],
   100: [0]
+};
+
+var HOUSINGTYPE_MINPRICE_CONNECT = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
 };
 
 // Нахождение и удаление класса появления карты
@@ -39,7 +45,6 @@ function randomArr(arr) {
   return arr[getRandom(0, arr.length)];
 }
 
-
 // Функция формирования объявления
 function createObj(id) {
   var announcement = {
@@ -54,8 +59,8 @@ function createObj(id) {
       "type": randomArr(TYPE_APARTMENTS),
       "rooms": getRandom(1,5),
       "guests": getRandom(1,8),
-      "checkin": randomArr(TIME_CHECKIN),
-      "checkout": randomArr(TIME_CHECKOUT),
+      "checkin": randomArr(TIME_ARRIVAL_DEPARTURE),
+      "checkout": randomArr(TIME_ARRIVAL_DEPARTURE),
       "features": ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'],
       "description": 'Отель Mustard Asakusa 2 удобно расположен в районе Таито в Токио, в 200 м от торгового центра Ekimise Asakusa, в 300 м от ворот Гозомон и в 300 м от ворот Нитенмон. Отель находится недалеко от публичного зала Asakusa, концертного зала Sumida Riverside Hall и торгового центра Asakusa ROX. К услугам гостей круглосуточная стойка регистрации и бесплатный Wi-Fi на всей территории.',
       "photos": ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg']
@@ -78,6 +83,14 @@ function renderAnnouncement () {
   return arr;
 }
 
+// Функция проверки Dom-элемента в разметке и удаление элемента
+var closeCard = function () {
+  var cardCheck = document.querySelector('.map__card');
+  if (cardCheck) {
+    mapEmergence.removeChild(cardCheck);
+  }
+}
+
 // Функция создания метки на основе клонирования, подставление данных в нее из объекта
 var tagCreation = function (announcement) {
   var tagCreationTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -88,6 +101,15 @@ var tagCreation = function (announcement) {
   tagElement.querySelector('img').setAttribute('src', announcement.author.avatar);
   tagElement.querySelector('img').setAttribute('alt', announcement.offer.title);
 
+  // Создаем содержание объявлений на основе клонирования
+  tagElement.addEventListener('click', function () {
+
+    closeCard();
+
+    fragment.appendChild(cardCreation(announcement));
+    document.querySelector('.map').insertBefore(fragment, filterMap)
+  });
+
   return tagElement;
 }
 
@@ -95,7 +117,6 @@ var tagCreation = function (announcement) {
 var cardCreation = function (announcement) {
   var cardCreationTemplate = document.querySelector('#card').content.querySelector('.map__card');
   var cardElement = cardCreationTemplate.cloneNode(true);
-
 
   cardElement.querySelector('.popup__title').textContent = announcement.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = announcement.offer.address;
@@ -126,6 +147,14 @@ var cardCreation = function (announcement) {
   }
 
   cardElement.querySelector('.popup__avatar').src = announcement.author.avatar;
+
+  var closeCardBtn = cardElement.querySelector('.popup__close');
+  closeCardBtn.addEventListener('click', closeCard);
+  document.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      closeCard();
+    }
+  });
 
   return cardElement;
 }
@@ -173,10 +202,10 @@ mainPin.addEventListener('mousedown', function() {
 
 // Создаем функцию перевода страницы из неактивного состояни в активное
 var translationActiveState = function () {
-setRemoveFieldDisabled(formFieldset, false);
-setRemoveFieldDisabled(formSelect, false);
+  setRemoveFieldDisabled(formFieldset, false);
+  setRemoveFieldDisabled(formSelect, false);
   document.querySelector('.map__pins').appendChild(fragment);
-  document.querySelector('.map').insertBefore(filterCardCreation, filterMap)
+  document.querySelector('.map').insertBefore(filterCardCreation, filterMap);
   mapEmergence.classList.remove('map--faded');
   form.classList.remove('ad-form--disabled');
   getAdressInput(PIN_WIDHT_X, PIN_HEIGHT_Y);
@@ -209,12 +238,12 @@ var getAdressInput = function (x, y) {
 
 getAdressInput(PIN_WIDTH, PIN_HEIGHT);
 
-// Функция соответствия двух полей формы
+// Функция соответствия двух полей формы (количество комнат и количество гостей)
 var roomNumber = document.querySelector('#room_number');
 var guestsNumber = document.querySelector('#capacity');
 
 var getActiveRooms = function () {
-  var numbers = ROOMS_GUESTS_CONNECT[(roomNumber.value)];
+  var numbers = ROOMS_GUESTS_CONNECT[roomNumber.value];
 
   for (var i = 0; i < guestsNumber.length; i++) {
     var val = parseInt(guestsNumber[i].value, 10);
@@ -227,10 +256,32 @@ var getActiveRooms = function () {
   }
 };
 
-// Создаем событие в форме по вызову функции соответствия
-roomNumber.addEventListener('change', function () {
-  getActiveRooms();
-});
+// Создаем событие в форме по вызову функции соответствия (количество комнат и количество гостей)
+roomNumber.addEventListener('change', getActiveRooms);
 
 
+// Функция соответствия двух полей формы (тип жилья и минимальная цена)
+var typeHousing = document.querySelector('#type');
+var price = document.querySelector('#price');
 
+var getMinPriceConnectType = function () {
+  price.min = HOUSINGTYPE_MINPRICE_CONNECT[typeHousing.value];
+  price.placeholder = price.min;
+};
+
+// Создаем событие по вызову функции (тип жилья и минимальная цена)
+typeHousing.addEventListener('input', getMinPriceConnectType);
+
+// Функции проверок соответсвия двух полей (время заезда и время выезда)
+var timeIn = document.querySelector('#timein');
+var timeOut = document.querySelector('#timeout');
+
+
+var getTimeinConnectTimeout = function (evt) {
+  var value = evt.target.value;
+  timeOut.value = value;
+  timeIn.value = value;
+};
+
+timeIn.addEventListener('input', getTimeinConnectTimeout);
+timeOut.addEventListener('input', getTimeinConnectTimeout);
