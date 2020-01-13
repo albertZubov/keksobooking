@@ -16,5 +16,4 @@ jobs:
         git commit -m Publish
         git remote set-url origin https://albertZubov:${{secrets.GITHUB_TOKEN}}@github.com/albertZubov/keksobooking.git
         git remote -v
-        git checkout -b gh-pages
         git push origin HEAD:gh-pages --force
