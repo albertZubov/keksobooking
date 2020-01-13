@@ -14,6 +14,6 @@ jobs:
         git config user.name "Albert Zubov"
         git add .
         git commit -m Publish
-        git remote set-url origin https://albertZubov:${{secrets.GITHUB_TOKEN}}@github.com/albertZubov/keksobooking.git
+        git remote set-url origin https://${{github.actor}}:${{secrets.GITHUB_TOKEN}}@github.com/albertZubov/keksobooking.git
         git remote -v
         git push origin HEAD:gh-pages --force
