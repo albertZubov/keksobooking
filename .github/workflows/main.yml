@@ -11,7 +11,7 @@ jobs:
     - run: |
         git config user.email "zubov.warrior@gmail.com"
         git config user.name "Albert Zubov"
-        git remote set-url origin https://${{secrets.ACCESS_TOKEN}}:x-oauth-basic@github.com/albertZubov/keksobooking.git
+        git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/albertZubov/keksobooking.git
         git remote -v
         git checkout -b gh-pages
         git push origin HEAD:gh-pages --force
