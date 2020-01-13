@@ -11,10 +11,6 @@ jobs:
     - run: |
         git config user.email "zubov.warrior@gmail.com"
         git config user.name "Albert Zubov"
-        ls -a
-        git status
-        git add .
-        git commit -m "Publish"
         git remote set-url origin https://albertZubov:${{secrets.ACCESS_TOKEN}}@github.com/albertZubov/keksobooking.git
         git remote -v
         git checkout -b gh-pages
