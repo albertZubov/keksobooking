@@ -82,5 +82,21 @@ var getTimeinConnectTimeout = function (evt) {
 timeIn.addEventListener('input', getTimeinConnectTimeout);
 timeOut.addEventListener('input', getTimeinConnectTimeout);
 
-})();
+var removeCard = function () {
+  var otherPinMap = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+  otherPinMap.forEach(function (item) {
+    item.remove();
+  })
+};
 
+// Добавляем обрабочки события на кнопку отправки формы на сервер через AJAX
+var submitForm = document.querySelector('.ad-form');
+submitForm.addEventListener('submit', function (evt) {
+  evt.preventDefault();
+  window.save(new FormData(submitForm), function () {
+    submitForm.reset();
+    window.getAdressInput(window.PIN_WIDTH, window.PIN_HEIGHT);
+    removeCard();
+  });
+});
+})();
