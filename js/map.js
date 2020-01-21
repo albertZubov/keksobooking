@@ -16,7 +16,7 @@ var filterCardCreation = window.cardCreation(window.createObj(2));
 // Добавление элемента объявления в DOM
 window.filterMap = document.querySelector('.map__filters-container');
 
-// Объявляем перенные поиска элементов на странице
+// Объявляем переменные поиска элементов на странице
 var formFieldset = document.querySelectorAll('fieldset');
 var formSelect = document.querySelectorAll('select');
 var form = document.querySelector('.ad-form');
@@ -33,6 +33,7 @@ setRemoveFieldDisabled(formSelect, true);
 
 // Создаем функцию перевода страницы из неактивного состояни в активное
 var translationActiveState = function () {
+  window.load(window.loadHundler, window.errorHundler);
   setRemoveFieldDisabled(formFieldset, false);
   setRemoveFieldDisabled(formSelect, false);
   document.querySelector('.map__pins').appendChild(window.fragment);
@@ -41,6 +42,14 @@ var translationActiveState = function () {
   form.classList.remove('ad-form--disabled');
   window.getAdressInput(PIN_WIDHT_X, window.PIN_HEIGHT_Y);
 };
+
+// Перевод страницы из активного состояния, в неактивное
+window.translationDeactiveState = function () {
+  setRemoveFieldDisabled(formFieldset, true);
+  setRemoveFieldDisabled(formSelect, true);
+  window.mapEmergence.classList.add('map--faded');
+  form.classList.add('ad-form--disabled');
+}
 
 // Создаем функцию, которая вызывается при нажатии на enter
 var onMapActiveEnterPress = function (evt) {

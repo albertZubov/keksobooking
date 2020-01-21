@@ -2,6 +2,7 @@
 
 (function () {
   var QUANTITY = 8;
+  var ESC_KEYCODE = 27;
 
 /*// Функция создания и записи объектов в массив
 function renderAnnouncement () {
@@ -15,7 +16,7 @@ function renderAnnouncement () {
 var arrayAnnouncement = renderAnnouncement();*/
 
 // Создаю фрагмент и рохожу циклом по массиву, добавляю метку в фрагмент
-var loadHundler = function (card) {
+window.loadHundler = function (card) {
   window.fragment = document.createDocumentFragment();
   for (var i = 0; i < card.length; i++) {
     window.fragment.appendChild(window.tagCreation(card[i]));
@@ -27,10 +28,29 @@ var similarErrorTemplate = document.querySelector('#error').content.querySelecto
 
 // Функция отрисовки окна ошибки запроса данных с сервера
 window.errorHundler = function (errorMessage) {
-  var modalError = similarErrorTemplate.cloneNode(true);
-  document.body.insertAdjacentElement('afterbegin', modalError);
+  var addMainModal = document.querySelector('main');
+  var modalErrorClone = similarErrorTemplate.cloneNode(true);
+
+  addMainModal.insertAdjacentElement('beforeend', modalErrorClone);
+
+  var errorBtn = document.querySelector('.error__button');
+  var errorModal = document.querySelector('.error');
+
+  errorBtn.addEventListener('click', function () {
+    addMainModal.removeChild(errorModal);
+  });
+
+  errorModal.addEventListener('click', function () {
+    addMainModal.removeChild(errorModal);
+  });
+
+  document.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      addMainModal.removeChild(errorModal);
+    }
+  });
 }
 
-window.load(loadHundler, window.errorHundler);
+window.load(window.loadHundler, window.errorHundler);
 })();
 
