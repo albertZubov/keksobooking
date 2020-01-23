@@ -51,6 +51,6 @@ window.errorHundler = function (errorMessage) {
   });
 }
 
-window.load(window.loadHundler, window.errorHundler);
+window.loadSave(window.loadHundler, window.errorHundler, window.requestGet, window.URL_GET);
 })();
 

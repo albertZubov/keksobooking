@@ -125,7 +125,7 @@ var closeSuccessModal = function () {
   });
 }
 
-var sendFormServer = function () {
+var renderForm = function () {
   var modalSuccessClone = similarSuccessTemplate.cloneNode(true);
   submitForm.reset();
   removePin();
@@ -141,6 +141,6 @@ var sendFormServer = function () {
 var submitForm = document.querySelector('.ad-form');
 submitForm.addEventListener('submit', function (evt) {
   evt.preventDefault();
-  window.save(new FormData(submitForm), sendFormServer, window.errorHundler);
+  window.loadSave(renderForm, window.errorHundler, window.requestPost, window.URL_POST, new FormData(submitForm));
 });
 })();

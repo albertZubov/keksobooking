@@ -33,7 +33,7 @@ setRemoveFieldDisabled(formSelect, true);
 
 // Создаем функцию перевода страницы из неактивного состояни в активное
 var translationActiveState = function () {
-  window.load(window.loadHundler, window.errorHundler);
+  window.loadSave(window.loadHundler, window.errorHundler, window.requestGet, window.URL_GET);
   setRemoveFieldDisabled(formFieldset, false);
   setRemoveFieldDisabled(formSelect, false);
   document.querySelector('.map__pins').appendChild(window.fragment);
