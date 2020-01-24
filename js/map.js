@@ -32,11 +32,15 @@ setRemoveFieldDisabled(formFieldset, true);
 setRemoveFieldDisabled(formSelect, true);
 
 // Создаем функцию перевода страницы из неактивного состояни в активное
-var translationActiveState = function () {
-  window.loadSave(window.loadHundler, window.errorHundler, window.requestGet, window.URL_GET);
+var translationActiveState = function (cards) {
+  var fragment = document.createDocumentFragment();
+  for (var i = 0; i < cards.length; i++) {
+    fragment.appendChild(window.tagCreation(cards[i]));
+  }
+
   setRemoveFieldDisabled(formFieldset, false);
   setRemoveFieldDisabled(formSelect, false);
-  document.querySelector('.map__pins').appendChild(window.fragment);
+  document.querySelector('.map__pins').appendChild(fragment);
   document.querySelector('.map').insertBefore(filterCardCreation, window.filterMap);
   window.mapEmergence.classList.remove('map--faded');
   form.classList.remove('ad-form--disabled');
@@ -65,7 +69,7 @@ window.mainPin.addEventListener('keydown', onMapActiveEnterPress);
 // Добавялем обработчик события на метку по наведению и клику
 window.mainPin.addEventListener('mousedown', function(evt) {
   evt.preventDefault();
-  translationActiveState();
+  window.sendRequestServer(translationActiveState, window.errorHundler, 'GET');
 
   var startCoords = {
     x: evt.clientX,

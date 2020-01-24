@@ -141,6 +141,6 @@ var renderForm = function () {
 var submitForm = document.querySelector('.ad-form');
 submitForm.addEventListener('submit', function (evt) {
   evt.preventDefault();
-  window.loadSave(renderForm, window.errorHundler, window.requestPost, window.URL_POST, new FormData(submitForm));
+  window.sendRequestServer(renderForm, window.errorHundler, 'POST', new FormData(submitForm));
 });
 })();

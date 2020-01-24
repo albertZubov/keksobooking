@@ -4,25 +4,6 @@
   var QUANTITY = 8;
   var ESC_KEYCODE = 27;
 
-/*// Функция создания и записи объектов в массив
-function renderAnnouncement () {
-  var arr = [];
-  for (var i = 0; i < QUANTITY; i++) {
-    arr[i] = window.createObj(i + 1);
-  }
-  return arr;
-}
-
-var arrayAnnouncement = renderAnnouncement();*/
-
-// Создаю фрагмент и рохожу циклом по массиву, добавляю метку в фрагмент
-window.loadHundler = function (card) {
-  window.fragment = document.createDocumentFragment();
-  for (var i = 0; i < card.length; i++) {
-    window.fragment.appendChild(window.tagCreation(card[i]));
-  }
-}
-
 // Нахождение окна ошибки в Темплайте
 var similarErrorTemplate = document.querySelector('#error').content.querySelector('.error');
 
@@ -50,7 +31,5 @@ window.errorHundler = function (errorMessage) {
     }
   });
 }
-
-window.loadSave(window.loadHundler, window.errorHundler, window.requestGet, window.URL_GET);
 })();
 
