@@ -1,7 +1,11 @@
 'use strict';
 (function () {
+  window.fragment = document.createDocumentFragment();
+  window.pins = [];
+  var typeHousingMap = document.querySelector('#housing-type');
   var ENTER_KEYCODE = 13;
   var PIN_WIDHT_X = 62;
+  var QUANTITY = 3;
   var COORDS_ADRESS_Y = {
     min: 130,
     max: 630
@@ -32,16 +36,20 @@ setRemoveFieldDisabled(formFieldset, true);
 setRemoveFieldDisabled(formSelect, true);
 
 // Создаем функцию перевода страницы из неактивного состояни в активное
-var translationActiveState = function (cards) {
-  var fragment = document.createDocumentFragment();
-  for (var i = 0; i < cards.length; i++) {
-    fragment.appendChild(window.tagCreation(cards[i]));
+window.renderCardsMap = function (cards) {
+  window.pins = cards;
+  var takeNumber = cards.length > 5 ? 5 : cards.length;
+  for (var i = 0; i < takeNumber; i++) {
+    window.fragment.appendChild(window.tagCreation(cards[i]));
   }
 
-  setRemoveFieldDisabled(formFieldset, false);
-  setRemoveFieldDisabled(formSelect, false);
   document.querySelector('.map__pins').appendChild(fragment);
   document.querySelector('.map').insertBefore(filterCardCreation, window.filterMap);
+};
+
+var translationActiveState = function () {
+  setRemoveFieldDisabled(formFieldset, false);
+  setRemoveFieldDisabled(formSelect, false);
   window.mapEmergence.classList.remove('map--faded');
   form.classList.remove('ad-form--disabled');
   window.getAdressInput(PIN_WIDHT_X, window.PIN_HEIGHT_Y);
@@ -58,6 +66,7 @@ window.translationDeactiveState = function () {
 // Создаем функцию, которая вызывается при нажатии на enter
 var onMapActiveEnterPress = function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
+    window.sendRequestServer(window.renderCardsMap, window.errorHandler, 'GET');
     translationActiveState();
   }
 };
@@ -69,7 +78,8 @@ window.mainPin.addEventListener('keydown', onMapActiveEnterPress);
 // Добавялем обработчик события на метку по наведению и клику
 window.mainPin.addEventListener('mousedown', function(evt) {
   evt.preventDefault();
-  window.sendRequestServer(translationActiveState, window.errorHundler, 'GET');
+  window.sendRequestServer(window.renderCardsMap, window.errorHandler, 'GET');
+  translationActiveState();
 
   var startCoords = {
     x: evt.clientX,
@@ -116,5 +126,15 @@ window.mainPin.addEventListener('mousedown', function(evt) {
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
 });
+
+var filteredHousingType = function () {
+  window.removePin();
+  var filteredCards = window.pins.filter(function (e) {
+    return e.offer.type === typeHousingMap.value;
+  });
+  window.renderCardsMap(filteredCards);
+};
+
+typeHousingMap.addEventListener('change', filteredHousingType);
 })();
 
