@@ -1,7 +1,7 @@
 'use strict';
 (function () {
   window.fragment = document.createDocumentFragment();
-  window.pins = [];
+  var pins = [];
   var typeHousingMap = document.querySelector('#housing-type');
   var ENTER_KEYCODE = 13;
   var PIN_WIDHT_X = 62;
@@ -35,19 +35,22 @@ var setRemoveFieldDisabled = function (field, status) {
 setRemoveFieldDisabled(formFieldset, true);
 setRemoveFieldDisabled(formSelect, true);
 
-// Создаем функцию перевода страницы из неактивного состояни в активное
-window.renderCardsMap = function (cards) {
-  window.pins = cards;
-  var takeNumber = cards.length > 5 ? 5 : cards.length;
+// Рендеринг пинов на страницу
+var renderPins = function(pins) {
+  window.removePin();
+  var takeNumber = pins.length > 5 ? 5 : pins.length;
   for (var i = 0; i < takeNumber; i++) {
-    window.fragment.appendChild(window.tagCreation(cards[i]));
+    window.fragment.appendChild(window.tagCreation(pins[i]));
   }
-
   document.querySelector('.map__pins').appendChild(fragment);
-  document.querySelector('.map').insertBefore(filterCardCreation, window.filterMap);
-};
+}
 
-var translationActiveState = function () {
+// Создаем функцию перевода страницы из неактивного состояни в активное
+var translationActiveState = function (cards) {
+  pins = cards;
+  renderPins(cards);
+
+  document.querySelector('.map').insertBefore(filterCardCreation, window.filterMap);
   setRemoveFieldDisabled(formFieldset, false);
   setRemoveFieldDisabled(formSelect, false);
   window.mapEmergence.classList.remove('map--faded');
@@ -66,8 +69,7 @@ window.translationDeactiveState = function () {
 // Создаем функцию, которая вызывается при нажатии на enter
 var onMapActiveEnterPress = function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
-    window.sendRequestServer(window.renderCardsMap, window.errorHandler, 'GET');
-    translationActiveState();
+    window.sendRequestServer(translationActiveState, window.errorHandler, 'GET');
   }
 };
 
@@ -78,8 +80,7 @@ window.mainPin.addEventListener('keydown', onMapActiveEnterPress);
 // Добавялем обработчик события на метку по наведению и клику
 window.mainPin.addEventListener('mousedown', function(evt) {
   evt.preventDefault();
-  window.sendRequestServer(window.renderCardsMap, window.errorHandler, 'GET');
-  translationActiveState();
+  window.sendRequestServer(translationActiveState, window.errorHandler, 'GET');
 
   var startCoords = {
     x: evt.clientX,
@@ -128,11 +129,10 @@ window.mainPin.addEventListener('mousedown', function(evt) {
 });
 
 var filteredHousingType = function () {
-  window.removePin();
-  var filteredCards = window.pins.filter(function (e) {
+  var filteredCards = pins.filter(function (e) {
     return e.offer.type === typeHousingMap.value;
   });
-  window.renderCardsMap(filteredCards);
+  renderPins(filteredCards);
 };
 
 typeHousingMap.addEventListener('change', filteredHousingType);
