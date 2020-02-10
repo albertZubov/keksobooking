@@ -151,61 +151,46 @@ var getPriceFilter = function (quantity) {
   }
 };
 
-var getFeaturesFilter = function (features) {
-  var featuresEventClick = featuresArray.filter(function (feature) {
-    return feature.checked;
-  }).map(function (feature) {
-    return feature.value;
-  });
+var filterByType = window.debounce( function (filteredPins) {
+  var filteredCardsArray = pins.slice(0);
 
-  var listFeature = features.filter(function (el) {
-    if (featuresEventClick.includes(el)) {
-      return true;
+  var featureValues = featuresArray.reduce(function (arr, data) {
+    if (data.checked) {
+      arr.push(data.value);
     }
-  });
-  console.log(listFeature);
-}
+    return arr;
+  }, []);
 
-var filterByType = function () {
-  var filteredCards = pins.slice(0); // [{}, {}]
+  console.log (featureValues);
 
-
-  filteredCards = filteredCards.filter(function (e) {
-    if (filters.type.value === 'any') {
-      return true;
+  var filteredPins = filteredCardsArray.filter(function (e) {
+    if (filters.type.value !== 'any' && e.offer.type !== filters.type.value) {
+      return false;
     }
-    return e.offer.type === filters.type.value;
-  });
 
-  filteredCards = filteredCards.filter(function (e) {
-    if (filters.rooms.value === 'any') {
-      return true;
+    if (filters.rooms.value !== 'any' && e.offer.rooms !== parseInt(filters.rooms.value, 10)) {
+      return false;
     }
-    return e.offer.rooms === Number(filters.rooms.value);
-  });
 
-  filteredCards = filteredCards.filter(function (e) {
-    if (filters.guests.value === 'any') {
-      return true;
+    if (filters.guests.value !== 'any' && e.offer.guests !== parseInt(filters.guests.value, 10)) {
+      return false;
     }
-    return e.offer.guests === Number(filters.guests.value);
-  });
 
-  filteredCards = filteredCards.filter(function (e) {
-    if (filters.price.value === 'any') {
-      return true;
+    if (filters.price.value !== 'any' && filters.price.value !== getPriceFilter(e.offer.price)) {
+      return false;
     }
-    return getPriceFilter(e.offer.price) === filters.price.value;
+
+    if (featureValues.length) {
+      return featureValues.every(function (feature) {
+        return e.offer.features.indexOf(feature) >= 0;
+      })
+    }
+
+    return true;
   });
 
-
-  filteredCards = filteredCards.filter(function (e) {
-    /*    console.log(getFeaturesFilter(e.offer.features));*/
-    return getFeaturesFilter(e.offer.features);
-  });
-
-  renderPins(filteredCards);
-};
+  renderPins(filteredPins);
+});
 
 
 filters.type.addEventListener('change', filterByType);
